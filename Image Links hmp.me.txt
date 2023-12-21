@@ -1,0 +1,26 @@
+1. New Location -https://hmp.me/d84h
+2. Data Curation -https://hmp.me/d84n
+3. Data Analysis -https://hmp.me/d80l
+
+
+<View>
+          <Text className="mt-10 text-3xl text-white font-bold">
+            Date:{Date}
+          </Text>
+          <TextInput
+            className="m-3 p-3 text-2xl border-2 border-green text-white"
+            placeholder="Enter the Date"
+            keyboardType="numeric"
+            onChangeText={(text) => setDate(text)}
+          />
+        </View>
+
+
+
+<View>
+          <Text className="mt-10 text-3xl text-white font-bold">
+            Date:{date.toLocaleString()}
+          </Text>
+          <Button title="Show Date Picker" onPress={() => showMode("Date")} />
+          {show && <DateTimePicker value={date} mode={mode} onChange={onChange} />}
+        </View>

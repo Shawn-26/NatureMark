@@ -332,13 +332,13 @@ const TreeSpecies = [
   },
 ];
 
-const DetectedTag = ({route}) => {
+const DetectedTag = ({ route }) => {
   const [selectedSpecies, setSelectedSpecies] = useState("Select Species");
   const [isClicked, setIsClicked] = useState(false);
   const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
   const [image, setImage] = useState(null);
   const [data, setData] = useState(TreeSpecies);
-  const [db, setDb] = useState(SQLite.openDatabase('naturemark.db'));
+  const [db, setDb] = useState(SQLite.openDatabase("naturemark.db"));
   const [names, setNames] = useState([]);
   const [currentLatitude, setCurrentLatitude] = useState(undefined);
   const [currentLongitude, setCurrentLongitude] = useState(undefined);
@@ -355,51 +355,60 @@ const DetectedTag = ({route}) => {
   }, []);
 
   useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS Names (id INTEGER PRIMARY KEY AUTOINCREMENT, species TEXT, latitude REAL, longitude REAL, height REAL, width REAL;)')
+    db.transaction((tx) => {
+      tx.executeSql(
+        "CREATE TABLE IF NOT EXISTS Names (id INTEGER PRIMARY KEY AUTOINCREMENT, species TEXT, latitude REAL, longitude REAL, height REAL, width REAL;)"
+      );
     });
-  },[db]);
+  }, [db]);
 
   const addColumns = () => {
     db.transaction((tx) => {
-      tx.executeSql('ALTER TABLE Names ADD COLUMN location TEXT;');
-  
-      tx.executeSql('ALTER TABLE Names ADD COLUMN CarbonSequestration REAL;');
+      tx.executeSql("ALTER TABLE Names ADD COLUMN location TEXT;");
+
+      tx.executeSql("ALTER TABLE Names ADD COLUMN CarbonSequestration REAL;");
     });
   };
-  
+
   addColumns();
 
-  const calculation = (height,width) => {
-    const Tbv = 0.4 * (width*width) * height;
+  const calculation = (height, width) => {
+    const Tbv = 0.4 * (width * width) * height;
     const AGB = 0.6 * Tbv;
     const BGB = AGB * 0.26;
     const TB = AGB + BGB;
-    const C = TB/2;
+    const C = TB / 2;
     const CS = C * 3.6663;
 
     return CS;
-  }
+  };
 
   const addData = () => {
+    const carbonSequestration = calculation(currentHeight, currentWidth);
 
-    const carbonSequestration = calculation(currentHeight,currentWidth);
-
-    db.transaction(tx => {
+    db.transaction((tx) => {
       tx.executeSql(
-        'INSERT INTO Names (species, latitude, longitude, height, width, location, CarbonSequestration) VALUES (? ,?, ?, ?, ?, ?, ?)',
-        [selectedSpecies ,currentLatitude, currentLongitude, currentHeight, currentWidth, location, carbonSequestration],
+        "INSERT INTO Names (species, latitude, longitude, height, width, location, CarbonSequestration) VALUES (? ,?, ?, ?, ?, ?, ?)",
+        [
+          selectedSpecies,
+          currentLatitude,
+          currentLongitude,
+          currentHeight,
+          currentWidth,
+          location,
+          carbonSequestration,
+        ],
         (txObj, resultSet) => {
           let existingData = [...names];
           existingData.push({
             id: resultSet.insertId,
-            species : selectedSpecies,
+            species: selectedSpecies,
             latitude: currentLatitude,
             longitude: currentLongitude,
             height: currentHeight,
             width: currentWidth,
             location: location,
-            CarbonSequestration: carbonSequestration
+            CarbonSequestration: carbonSequestration,
           });
           setNames(existingData);
           // Reset your current values if needed
@@ -414,7 +423,7 @@ const DetectedTag = ({route}) => {
     });
     console.log(names);
   };
-  
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -537,7 +546,9 @@ const DetectedTag = ({route}) => {
                 </Text>
                 <TextInput
                   className="p-2 text-2xl border-2 border-black text-white"
-                  keyboardType="numeric" value={currentLatitude} onChangeText={setCurrentLatitude}
+                  keyboardType="numeric"
+                  value={currentLatitude}
+                  onChangeText={setCurrentLatitude}
                 />
               </View>
               <View className="ml-10 flex-1">
@@ -546,7 +557,9 @@ const DetectedTag = ({route}) => {
                 </Text>
                 <TextInput
                   className="p-2 text-2xl border-2 border-black text-white"
-                  keyboardType="numeric" value={currentLongitude} onChangeText={setCurrentLongitude}
+                  keyboardType="numeric"
+                  value={currentLongitude}
+                  onChangeText={setCurrentLongitude}
                 />
               </View>
             </View>
@@ -558,11 +571,19 @@ const DetectedTag = ({route}) => {
             <View className="flex-row justify-between mt-8 ml-10">
               <View className="flex-1">
                 <Text className="text-white font-semibold text-xl">Height</Text>
-                <TextInput className="p-3 text-2xl border-2 border-black text-white" value={currentHeight} onChangeText={setCurrentHeight} />
+                <TextInput
+                  className="p-3 text-2xl border-2 border-black text-white"
+                  value={currentHeight}
+                  onChangeText={setCurrentHeight}
+                />
               </View>
               <View className="ml-10 flex-1">
                 <Text className="text-white font-semibold text-xl">Width</Text>
-                <TextInput className="p-3 text-xl border-2 border-black text-white" value={currentWidth} onChangeText={setCurrentWidth} />
+                <TextInput
+                  className="p-3 text-xl border-2 border-black text-white"
+                  value={currentWidth}
+                  onChangeText={setCurrentWidth}
+                />
               </View>
             </View>
             <View className="flex-row justify-between ml-12 mt-10 mr-5">
@@ -571,7 +592,10 @@ const DetectedTag = ({route}) => {
                   Discard
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity className="h-20 p-3 px-10 border-2 bg-green-500" onPress={addData(location)}>
+              <TouchableOpacity
+                className="h-20 p-3 px-10 border-2 bg-green-500"
+                onPress={addData(location)}
+              >
                 <Text className="text-4xl font-bold text-gray-100">Save</Text>
               </TouchableOpacity>
             </View>
